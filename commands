@@ -48,35 +48,43 @@ Acquire::https::Proxy "http://username:password@proxy:port";
 
 
 Task 3
-sudo apt-get install linux-headers-$(uname -r)
-mkdir ~/mymodule
-cd ~/mymodule
-#include <linux/init.h>
-#include <linux/module.h>
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Your Name");
-MODULE_DESCRIPTION("A simple kernel module");
+$ cd ~/fariza
+$ nano syscall.c
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
 
-static int __init mymodule_init(void) {
-    printk(KERN_INFO "mymodule: module loaded\n");
+asmlinkage long syscalls(void)
+{
+    printk(KERN_INFO "System call was called\n");
+    return 0;
+}
+static int __init syscalls_init(void)
+{
+    printk(KERN_INFO "System call module is loaded\n");
+    syscall_table[__NR_syscalls] = (unsigned long *)syscalls;
     return 0;
 }
 
-static void __exit mymodule_exit(void) {
-    printk(KERN_INFO "mymodule: module unloaded\n");
+static void __exit syscalls_exit(void)
+{
+    printk(KERN_INFO "System call module is unloaded\n");
+    syscall_table[__NR_syscalls] = NULL;
 }
 
-module_init(mymodule_init);
-module_exit(mymodule_exit);
-obj-m += mymodule.o
+module_init(syscalls_init);
+module_exit(syscalls_exit);
 
-all:
-    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+$ make -C /lib/modules/$(uname -r)/build M=$(pwd) modules
+$ sudo insmod syscalls.ko
 
-clean:
-    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-make
-sudo insmod mymodule.ko
-dmesg | tail
-sudo rmmod mymodule
+#include <unistd.h>
+#include <sys/syscall.h>
+
+#define __NR_syscalls 333
+
+int main()
+{
+    syscalls(__NR_syscalls);
+    return 0;
+}
