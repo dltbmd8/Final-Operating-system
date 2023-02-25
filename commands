@@ -1,0 +1,49 @@
+Task 1
+
+$su
+useradd student 
+passwd student
+login student
+whoami
+exit
+
+
+Task 2
+
+
+
+Task 3
+
+sudo apt-get install linux-headers-$(uname -r)
+
+mkdir ~/mymodule
+cd ~/mymodule
+#include <linux/init.h>
+#include <linux/module.h>
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Your Name");
+MODULE_DESCRIPTION("A simple kernel module");
+
+static int __init mymodule_init(void) {
+    printk(KERN_INFO "mymodule: module loaded\n");
+    return 0;
+}
+
+static void __exit mymodule_exit(void) {
+    printk(KERN_INFO "mymodule: module unloaded\n");
+}
+
+module_init(mymodule_init);
+module_exit(mymodule_exit);obj-m += mymodule.o
+
+all:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+    
+make
+sudo insmod mymodule.ko
+dmesg | tail
+sudo rmmod mymodule
