@@ -9,13 +9,46 @@ exit
 
 
 Task 2
+2.1
+~$ ip link show
+~$ sudo pacman -S dhcpcd
+~$ ip link show
+~$ sudo dhcpcd enp35s0 
+~$ ip link show
+~$ ping google.com -c3
+
+2.2
+cd
+ip a
+nano /etc/netplan/00-installer-config.yaml
+network:
+ethernets:
+dhcp4: true
+version: 2
+netplan generate
+netplan apply
+ip a
+pink google com
+nano /etc/resolv.conf
+reboot
+
+2.3
+sudo apt-get update
+sudo nano /etc/apt/apt.conf
+source /etc/apt/apt.conf
+Acquire::http::Proxy "http://[proxy-web-or-IP-address]:[port-number]";
+Acquire::https::Proxy "http://[proxy-web-or-IP-address]:[port-number]";
+Acquire::http::Proxy "http://10.8.0.1:8080";
+Acquire::https::Proxy "http://10.8.0.1:8080";
+Acquire::http::Proxy "http://[username]:[password]@proxy-web-or-IP-address]:[port-number]";
+Acquire::https::Proxy "http://[username]:[password]@proxy-web-or-IP-address]:[port-number]";
+Acquire::http::Proxy "http://username:password@proxy:port";
+Acquire::https::Proxy "http://username:password@proxy:port";
 
 
 
 Task 3
-
 sudo apt-get install linux-headers-$(uname -r)
-
 mkdir ~/mymodule
 cd ~/mymodule
 #include <linux/init.h>
@@ -35,14 +68,14 @@ static void __exit mymodule_exit(void) {
 }
 
 module_init(mymodule_init);
-module_exit(mymodule_exit);obj-m += mymodule.o
+module_exit(mymodule_exit);
+obj-m += mymodule.o
 
 all:
     make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 clean:
     make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-    
 make
 sudo insmod mymodule.ko
 dmesg | tail
